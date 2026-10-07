@@ -1,0 +1,149 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-ink: var(--success-ink);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-ink: var(--warning-ink);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-ink: var(--info-ink);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-neutral-ink: var(--neutral-ink);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Palette: kühle Neutraltöne, genau eine Akzentfarbe (Indigo-Blau) für Interaktion, Statusfarben nur für Status */
+  --background: #f6f7f9;
+  --foreground: #121826;
+  --card: #ffffff;
+  --card-foreground: #121826;
+  --popover: #ffffff;
+  --popover-foreground: #121826;
+  --primary: #2a52be;
+  --primary-foreground: #ffffff;
+  --secondary: #eff1f5;
+  --secondary-foreground: #121826;
+  --muted: #eff1f5;
+  --muted-foreground: #5b6474;
+  --accent: #eceff4;
+  --accent-foreground: #121826;
+  --destructive: #b3261e;
+  --border: #e2e5eb;
+  --input: #cfd4dd;
+  --ring: #2a52be;
+  --chart-1: #2a52be;
+  --chart-2: #2e7d4f;
+  --chart-3: #b7791f;
+  --chart-4: #b3261e;
+  --chart-5: #6b7280;
+  --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #121826;
+  --sidebar-primary: #2a52be;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eff2fb;
+  --sidebar-accent-foreground: #1d3f96;
+  --sidebar-border: #e2e5eb;
+  --sidebar-ring: #2a52be;
+
+  /* Statusfarben: Text immer mit Kontrast >= 4.5:1 auf dem hellen Hintergrund */
+  --success: #2e7d4f;
+  --success-soft: #eaf5ee;
+  --success-ink: #1f5c39;
+  --warning: #b7791f;
+  --warning-soft: #fdf4e1;
+  --warning-ink: #7d500d;
+  --danger: #b3261e;
+  --danger-soft: #fdeceb;
+  --danger-ink: #8f1d17;
+  --info: #2a52be;
+  --info-soft: #edf1fb;
+  --info-ink: #1d3f96;
+  --neutral-soft: #eff1f5;
+  --neutral-ink: #3a4254;
+
+  --shadow-pop: 0 1px 2px rgb(16 24 40 / 0.06), 0 8px 24px -4px rgb(16 24 40 / 0.12);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss03";
+  }
+  h1, h2, h3 {
+    letter-spacing: -0.01em;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Sichtbarer Tastaturfokus überall */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Nummern, Fristen und Kennzahlen mit tabellarischen Ziffern */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Gedämpfte Scrollbars für dichte Tabellen */
+@layer utilities {
+  .scrollbar-quiet {
+    scrollbar-width: thin;
+    scrollbar-color: var(--input) transparent;
+  }
+}
