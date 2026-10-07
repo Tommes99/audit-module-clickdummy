@@ -36,8 +36,6 @@ Danach die vorbereiteten Dateien aus diesem Paket nach `src/` und `scripts/` kop
 }
 ```
 
-Deployment: Vercel, Projekt importieren, keine Umgebungsvariablen nötig.
-
 ## 3. Projektstruktur
 
 ```
