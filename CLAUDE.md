@@ -171,9 +171,9 @@ Darstellung: Tab "Verlauf" je Audit (gefiltert über `auditId`), Mini-Verlauf je
 
 ## 8. Store-Konventionen
 
-- Ein Zustand-Store `useAppStore` in `src/store/app-store.ts` mit `data: SeedData` und `session: { personId, role }`.
+- Ein Zustand-Store `useAppStore` in `src/store/app-store.ts` mit `data: SeedData`, `session: { personId, role }` und `tourDone` (Fortschritt des Demo-Rundgangs, reiner UI-Zustand ohne Event).
 - `persist` mit Key `audit-clickdummy-v1` und `version`. Bei Versionswechsel auf Seed zurücksetzen, keine Migrationen bauen.
-- `resetToSeed()` nutzt `freshSeed()`. Button "Demo zurücksetzen" im Benutzermenü, mit Bestätigungsdialog.
+- `resetToSeed()` nutzt `freshSeed()` und setzt auch den Demo-Rundgang zurück. Button "Demo zurücksetzen" im Benutzermenü, mit Bestätigungsdialog.
 - Actions geben ein `GuardResult` zurück. Die Komponente zeigt bei `ok: false` die Blocker als Toast (sonner), bei Warnungen einen gelben Toast.
 - Muster jeder Action: Guard aus `rules.ts` prüfen → Daten unveränderlich aktualisieren → `appendEvent()` → `GuardResult` zurückgeben.
 - Abgeleitete Werte (Zähler, Fälligkeiten, Abdeckung) nie speichern, immer über Selektoren in `src/store/selectors.ts` berechnen.

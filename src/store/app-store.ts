@@ -31,8 +31,11 @@ const defaultSession = (): Session => ({ ...demoPersonas[0] });
 export interface AppState {
   data: SeedData;
   session: Session;
+  /** Besuchte Schritte des Demo-Rundgangs (reiner UI-Fortschritt, kein fachliches Event) */
+  tourDone: string[];
 
   setSession: (personId: ID, role: RoleKey) => void;
+  setTourStep: (stepId: string, done: boolean) => void;
   resetToSeed: () => void;
 
   transitionAudit: (id: ID, to: AuditStatus, reason?: string) => ActionResult;
@@ -82,7 +85,7 @@ export interface AppState {
 }
 
 /** Auf dem Server gibt es keinen Browser-Speicher: dort ein leerer Ersatz */
-const storage = createJSONStorage<Pick<AppState, "data" | "session">>(() =>
+const storage = createJSONStorage<Pick<AppState, "data" | "session" | "tourDone">>(() =>
   typeof window === "undefined"
     ? { getItem: () => null, setItem: () => undefined, removeItem: () => undefined }
     : window.localStorage,
@@ -104,9 +107,13 @@ export const useAppStore = create<AppState>()(
       return {
         data: freshSeed(),
         session: defaultSession(),
+        tourDone: [],
 
         setSession: (personId, role) => set({ session: { personId, role } }),
-        resetToSeed: () => set({ data: freshSeed(), session: defaultSession() }),
+        setTourStep: (stepId, done) =>
+          set((s) => ({ tourDone: done ? [...new Set([...s.tourDone, stepId])] : s.tourDone.filter((d) => d !== stepId) })),
+        // Setzt auch den Rundgang zurück
+        resetToSeed: () => set({ data: freshSeed(), session: defaultSession(), tourDone: [] }),
 
         transitionAudit: run(auditCmd.transitionAudit),
         assignAuditor: run(auditCmd.assignAuditor),
@@ -153,9 +160,9 @@ export const useAppStore = create<AppState>()(
       name: STORE_KEY,
       version: STORE_VERSION,
       storage,
-      partialize: (s) => ({ data: s.data, session: s.session }),
+      partialize: (s) => ({ data: s.data, session: s.session, tourDone: s.tourDone }),
       // Keine Migrationen: bei Versionswechsel zurück auf den Seed
-      migrate: () => ({ data: freshSeed(), session: defaultSession() }),
+      migrate: () => ({ data: freshSeed(), session: defaultSession(), tourDone: [] }),
     },
   ),
 );

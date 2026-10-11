@@ -42,7 +42,7 @@ Danach `http://localhost:3000` im Browser öffnen.
 
 - **Das Demo-Datum ist fest der 08.10.2026.** Alle Fristen („in 5 Tagen fällig", „überfällig") rechnen von diesem Tag aus. So wirkt die Demo bei jeder Vorführung gleich.
 - **Änderungen bleiben nur in Ihrem Browser.** Sie werden im lokalen Browserspeicher abgelegt. Andere Personen sehen sie nicht, und ein anderer Browser startet wieder beim Ausgangszustand.
-- **Zurücksetzen:** Oben rechts auf den Namen klicken, dann „Demo zurücksetzen". Danach ist alles wieder im Ausgangszustand, und die Rolle ist Sandra Keller.
+- **Zurücksetzen:** Oben rechts auf den Namen klicken, dann „Demo zurücksetzen". Danach ist alles wieder im Ausgangszustand, auch der Fortschritt im Demo-Rundgang, und die Rolle ist Sandra Keller.
 - **Hilfe:** Das kleine „?" neben Überschriften erklärt den Bereich in zwei, drei Sätzen.
 - **Schnellsuche:** Strg K (Windows) oder Cmd K (Mac). Sie springt zu Audits, Feststellungen (F-…), Maßnahmen (M-…), Normkapiteln (z. B. „8.1.3") und Seiten.
 - **Demo-Rundgang:** Links unten in der Seitenleiste. Jeder Schritt wechselt die Rolle und öffnet die passende Seite.
