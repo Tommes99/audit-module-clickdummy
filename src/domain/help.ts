@@ -45,6 +45,15 @@ export const helpTopics = {
     title: "Jahresplan",
     body: "Alle Audits des Programms nach Monat. Mit dem Pfeil vor der Zeile klappen Sie die Kurzinfo auf, ein Klick auf die Nummer öffnet das Audit.",
   },
+  "programme.create": {
+    title: "Audit planen",
+    body: "Ziele, Umfang und Normen legen fest, was geprüft wird. Die Risikoeinstufung mit Begründung macht die Planung nachvollziehbar (ISO 19011 Kapitel 5). Das Audit startet im Status Geplant.",
+    points: [
+      "Anforderungen im Scope: alle Kapitel der gewählten Normen",
+      "Auditees: Verantwortliche der gewählten Prozesse",
+      "Team, Checkliste und Konflikte folgen in der Vorbereitung",
+    ],
+  },
   "programme.risk": {
     title: "Risikoeinstufung",
     body: "Sie steuert, wie dringend ein Audit ist. Die Begründung steht im Audit unter Übersicht und Plan.",

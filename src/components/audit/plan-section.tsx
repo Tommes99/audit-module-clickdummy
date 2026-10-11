@@ -58,7 +58,7 @@ export function PlanSection({ audit }: { audit: Audit }) {
         </SectionTitle>
       </div>
       {days.length === 0 ? (
-        <EmptyState>Noch kein Auditplan hinterlegt. Zeitslots werden im Auditprogramm geplant.</EmptyState>
+        <EmptyState>Noch kein Auditplan hinterlegt. Zeitslots sind im Clickdummy nur für die Demo-Audits vorbereitet.</EmptyState>
       ) : (
         <Panel padded={false}>
           <div className={`hidden gap-x-4 border-b border-border bg-muted/40 px-4 py-1.5 text-xs font-medium text-muted-foreground lg:grid ${gridCols}`}>

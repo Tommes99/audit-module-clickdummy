@@ -64,7 +64,7 @@ src/
   components/              ui/ (shadcn, Base UI), shared/ (StatusBadge, EntityChip, GuardHint, HelpHint, Panel, ...), shell/ (Seitenleiste, Schnellsuche, Rundgang, Rollenwechsler), je Bereich
   app/                     Routen
 scripts/validate-seed.ts   Integritätsprüfung des Seeds
-scripts/demo-walkthrough.ts  spielt das Demo-Drehbuch (Schritte 4 bis 11) gegen die Commands durch (npm run demo:check)
+scripts/demo-walkthrough.ts  spielt das Demo-Drehbuch (Schritte 4 bis 12) und das Planen eines neuen Audits gegen die Commands durch (npm run demo:check)
 ```
 
 ## 4. Fachglossar
@@ -123,6 +123,8 @@ Wichtig: Gleiche Kapitelnummer bedeutet nicht gleicher Inhalt. ISO 14001 6.1.2 s
 Erlaubte Übergänge in `src/domain/workflows.ts`, Bedingungen in `src/domain/rules.ts`.
 
 **Audit:** Geplant → In Vorbereitung → In Durchführung → Berichtserstellung → Bericht freigegeben → Abgeschlossen. Absage aus Geplant und In Vorbereitung.
+
+Neue Audits plant die Programmverantwortung im Jahresplan ("Audit planen", Status Geplant, Guard `checkNewAudit`): Titel, Standort (bei Lieferantenaudits der Lieferant), mindestens eine Norm und ein Prozess des Standorts, Zeitraum ab `DEMO_TODAY` im Programmjahr, Auditleitung mit Rolle Auditor, Ziele, Umfang und Begründung der Risikoeinstufung. Abgeleitet werden die Anforderungen im Scope (alle Kapitel der gewählten Normen) und die Auditees (Verantwortliche der gewählten Prozesse). Konflikte und Qualifikationslücken sind beim Planen nur Warnungen.
 
 | Übergang | Bedingung (Guard) |
 |---|---|
@@ -183,7 +185,8 @@ Benötigte Actions (Mindestumfang):
 
 ```
 setSession(personId, role)            resetToSeed()
-transitionAudit(id, to, reason?)      assignAuditor(auditId, personId)
+createAudit(draft) -> id              transitionAudit(id, to, reason?)
+assignAuditor(auditId, personId)
 removeAuditor(auditId, personId)      overrideWarning(auditId, warningKey, reason)
 createChecklist(auditId, catalogId)   rateItem(itemId, rating, notes?)
 markRemainingConform(checklistId)     // nur Demo-Abkürzung, als solche geloggt
@@ -238,7 +241,7 @@ Rollenwechsler oben rechts mit fünf Personas. Rechte werden im Dummy nur über 
 | `/feststellungen` | Liste aller Feststellungen mit Schnellfiltern (`?filter=open_nc|to_accept|effectiveness`) | 2 |
 | `/feststellungen/[id]` | Feststellung mit Nachweiskette, CAPA-Schritten, Verknüpfungen, Mini-Verlauf | 1 |
 | `/verlauf` | globaler Audit-Trail mit Filter und Integritätsprüfung | 1 |
-| `/programm` | Jahresplan (Liste oder Monatsraster) und Tab Abdeckungsmatrix | 2 |
+| `/programm` | Jahresplan (Liste oder Monatsraster) mit "Audit planen" und Tab Abdeckungsmatrix | 2 |
 | `/massnahmen` | Tabelle aller Maßnahmen, Filter nach Status, Fälligkeit (`?due=overdue|due_soon|open`), Person, Standort | 2 |
 | `/dashboard` | Kennzahlen: offene Abweichungen nach Norm und Standort, Fälligkeiten, Programmfortschritt | 2 |
 | `/kataloge` und `/kataloge/[id]` | Fragenkataloge mit Versionen, Anforderungen mit normübergreifendem Mapping, Pflege als neue Version (Entwurf, Fragen ändern, ergänzen, verschieben, entfernen, mit Begründung freigeben) | 3 |

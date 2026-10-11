@@ -38,6 +38,8 @@ export interface AppState {
   setTourStep: (stepId: string, done: boolean) => void;
   resetToSeed: () => void;
 
+  /** Neues Audit im Auditprogramm, Status Geplant */
+  createAudit: (draft: auditCmd.AuditDraft) => ActionResult;
   transitionAudit: (id: ID, to: AuditStatus, reason?: string) => ActionResult;
   assignAuditor: (auditId: ID, personId: ID) => ActionResult;
   removeAuditor: (auditId: ID, personId: ID) => ActionResult;
@@ -115,6 +117,7 @@ export const useAppStore = create<AppState>()(
         // Setzt auch den Rundgang zurück
         resetToSeed: () => set({ data: freshSeed(), session: defaultSession(), tourDone: [] }),
 
+        createAudit: run(auditCmd.createAudit),
         transitionAudit: run(auditCmd.transitionAudit),
         assignAuditor: run(auditCmd.assignAuditor),
         removeAuditor: run(auditCmd.removeAuditor),

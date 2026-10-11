@@ -17,8 +17,8 @@ import type {
   Requirement,
   SeedData,
 } from "@/types/domain";
-import { actionTransitions, auditTransitions, findingTransitions, reportTransitions } from "@/domain/workflows";
-import { actionStatusLabels, auditStatusLabels, findingStatusLabels, reportStatusLabels } from "@/domain/labels";
+import { actionTransitions, auditTransitions, DEMO_TODAY, findingTransitions, reportTransitions } from "@/domain/workflows";
+import { actionStatusLabels, auditStatusLabels, findingStatusLabels, formatDate, reportStatusLabels } from "@/domain/labels";
 
 /** Meldung für einen nicht vorgesehenen Übergang, mit deutschen Statusbezeichnungen */
 const notPlanned = (labels: Record<string, { label: string }>, from: string, to: string) =>
@@ -64,7 +64,7 @@ export function requiresCapa(classification: FindingClassification): boolean {
 }
 
 /** Externe Audits arbeiten mit der Checkliste der Zertifizierungsstelle */
-export function isThirdPartyAudit(audit: Audit): boolean {
+export function isThirdPartyAudit(audit: Pick<Audit, "type">): boolean {
   return ["certification", "surveillance", "recertification"].includes(audit.type);
 }
 
@@ -160,6 +160,60 @@ export function findUncoveredStandards(audit: Audit, ctx: DomainContext): ID[] {
         ctx.persons.find((p) => p.id === a)?.auditorQualifications.includes(s),
       ),
   );
+}
+
+/* ------------------------------------------------------------------ */
+/* Audit planen                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Neues Audit im Auditprogramm: Ziele, Umfang und Kriterien (Normen) festlegen, risikobasiert begründen
+ * (ISO 19011 Kap. 5.4 und 5.5.2). Team-Konflikte und Qualifikationslücken sind hier nur Warnungen,
+ * blockiert wird erst der Start der Durchführung.
+ */
+export function checkNewAudit(audit: Audit, ctx: DomainContext & { programmeYear: number }): GuardResult {
+  const blockers: string[] = [];
+  if (!audit.title.trim()) blockers.push("Titel angeben.");
+  if (audit.type === "supplier") {
+    if (!audit.supplierName?.trim()) blockers.push("Lieferanten benennen.");
+  } else if (!audit.siteId) {
+    blockers.push("Standort wählen.");
+  }
+  if (audit.standardIds.length === 0) blockers.push("Mindestens eine Norm wählen.");
+  if (audit.processIds.length === 0) blockers.push("Mindestens einen Prozess wählen.");
+  if (audit.siteId) {
+    const foreign = audit.processIds
+      .map((id) => ctx.processes.find((p) => p.id === id))
+      .filter((p) => p && !p.siteIds.includes(audit.siteId as ID));
+    if (foreign.length > 0) blockers.push(`Prozesse gehören nicht zum Standort: ${foreign.map((p) => p?.name).join(", ")}.`);
+  }
+  if (!audit.plannedStart || !audit.plannedEnd) {
+    blockers.push("Zeitraum festlegen.");
+  } else {
+    if (audit.plannedEnd < audit.plannedStart) blockers.push("Das Ende liegt vor dem Beginn.");
+    if (audit.plannedStart < DEMO_TODAY) blockers.push(`Neue Audits beginnen frühestens am ${formatDate(DEMO_TODAY)}.`);
+    if (Number(audit.plannedStart.slice(0, 4)) !== ctx.programmeYear) {
+      blockers.push(`Das Audit liegt außerhalb des Auditprogramms ${ctx.programmeYear}.`);
+    }
+  }
+  const lead = ctx.persons.find((p) => p.id === audit.leadAuditorId);
+  if (!lead) blockers.push("Auditleitung festlegen.");
+  else if (!lead.roles.includes("auditor")) blockers.push(`${lead.name} ist nicht als Auditor:in hinterlegt.`);
+  if (!audit.objectives.trim()) blockers.push("Ziele beschreiben.");
+  if (!audit.scopeDescription.trim()) blockers.push("Umfang beschreiben.");
+  if (audit.planningRationale.reasons.length === 0) blockers.push("Risikoeinstufung begründen.");
+
+  const warnings =
+    blockers.length > 0 || !lead
+      ? []
+      : [
+          ...findImpartialityConflicts(audit, ctx).map((c) => c.message),
+          ...findQualificationGaps(audit, ctx).map((g) => g.message),
+          ...findUncoveredStandards(audit, ctx).map(
+            (s) => `Für ${ctx.standards.find((st) => st.id === s)?.code ?? s} ist im Auditteam noch niemand qualifiziert.`,
+          ),
+        ];
+  return result(blockers, warnings);
 }
 
 /* ------------------------------------------------------------------ */

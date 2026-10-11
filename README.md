@@ -245,6 +245,7 @@ Diese Strecke entspricht dem Vorführungsablauf. Sie dauert etwa 10 bis 15 Minut
 
 - **Negativfälle:** Ein Audit ohne Begründung absagen, eine Feststellung ohne Begründung zurückweisen, „nicht wirksam" ohne Kommentar speichern. Alle drei werden abgewiesen.
 - **Rechte:** Als Petra Schulz (Geschäftsführung) durch die Seiten gehen. Alles ist lesbar, aber kein Button ist aktiv. Der Tooltip nennt den Grund.
+- **Audit planen:** Als Sandra Keller unter „Audits und Jahresplan" auf „Audit planen" klicken. Art, Standort, Titel, Zeitraum (ab 08.10.2026), Normen, Prozesse, Ziele, Umfang und eine Begründung der Risikoeinstufung angeben. Solange etwas fehlt, nennt die Zeile „Noch offen" den Grund. Nach dem Speichern öffnet sich das neue Audit (z. B. A-2026-12) im Status „Geplant". Es lässt sich wie die anderen vorbereiten, mit einer Checkliste versehen und durchführen und erscheint im Jahresplan und in der Abdeckungsmatrix.
 - **Kataloge pflegen:** Als Sandra Keller einen Katalog öffnen, „Neue Version anlegen", eine Frage ändern und mit Begründung freigeben. Laufende Audits behalten ihre alte Checkliste.
 
 ---
@@ -256,7 +257,7 @@ Neben der Teststrecke von Hand gibt es vier automatische Prüfungen. Jede läuft
 | Befehl | Was er prüft, einfach gesagt |
 |---|---|
 | `npm run validate:seed` | Ist der Beispieldatensatz in sich stimmig? Zum Beispiel: Hat jede Feststellung Anforderung, Prozess und Standort? Verweisen Feststellung und Checklistenpunkt gegenseitig aufeinander? Ist jede geschlossene Abweichung von zwei verschiedenen Personen als wirksam bestätigt? Ist die Verlaufskette unverändert? |
-| `npm run demo:check` | Spielt die Teststrecke (Schritte 4 bis 12) automatisch gegen die Fachlogik durch, über 60 Einzelprüfungen. Dazu gehört auch, dass Verbotenes wirklich abgewiesen wird, zum Beispiel ein Bericht ohne Prüfung freigeben oder die eigene Wirksamkeitsprüfung selbst bestätigen. Am Ende wird der ganze Datenbestand erneut auf Stimmigkeit geprüft. |
+| `npm run demo:check` | Spielt die Teststrecke (Schritte 4 bis 12) und das Planen eines neuen Audits automatisch gegen die Fachlogik durch, 73 Einzelprüfungen. Dazu gehört auch, dass Verbotenes wirklich abgewiesen wird, zum Beispiel ein Bericht ohne Prüfung freigeben oder die eigene Wirksamkeitsprüfung selbst bestätigen. Am Ende wird der ganze Datenbestand erneut auf Stimmigkeit geprüft. |
 | `npm run typecheck` | Passen alle Programmteile formal zusammen (TypeScript)? |
 | `npm run lint` | Hält der Code die vereinbarten Regeln ein? |
 

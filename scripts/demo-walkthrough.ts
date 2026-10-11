@@ -138,6 +138,36 @@ expect("Freigegebene Version nicht mehr änderbar", !step(catalogCmd.removeCatal
 const draft2 = step(catalogCmd.createCatalogDraft(data, keller, draftId));
 expect("Entwurf verwerfen", draft2.ok && step(catalogCmd.discardCatalogDraft(data, keller, draft2.createdId!)).ok);
 
+console.log("Zusatz: Audit planen");
+const plan: audit.AuditDraft = {
+  type: "internal",
+  title: "Internes Audit Energiemanagement Leipzig",
+  siteId: "site-lei",
+  standardIds: ["std-50001"],
+  processIds: ["proc-energy"],
+  plannedStart: "2026-11-24",
+  plannedEnd: "2026-11-24",
+  leadAuditorId: "p-keller",
+  objectives: "Energieleistung und EnPI-Steuerung in Leipzig bewerten.",
+  scopeDescription: "Energiemanagement, wesentliche Energieeinsätze Werk Leipzig",
+  riskLevel: "medium",
+  riskReasons: ["ISO 50001 in Leipzig bisher nicht intern auditiert"],
+};
+expect("Ohne Begründung abgelehnt", !step(audit.createAudit(data, keller, { ...plan, riskReasons: [" "] })).ok);
+expect("Ende vor Beginn abgelehnt", !step(audit.createAudit(data, keller, { ...plan, plannedEnd: "2026-11-20" })).ok);
+expect("Beginn vor dem Demo-Datum abgelehnt", !step(audit.createAudit(data, keller, { ...plan, plannedStart: "2026-09-01" })).ok);
+expect("Prozess eines anderen Standorts abgelehnt", !step(audit.createAudit(data, keller, { ...plan, processIds: ["proc-prod-che"] })).ok);
+expect("Lieferantenaudit ohne Lieferant abgelehnt", !step(audit.createAudit(data, keller, { ...plan, type: "supplier", siteId: null })).ok);
+const planned = step(audit.createAudit(data, keller, plan));
+const newAudit = data.audits.find((a) => a.id === planned.createdId);
+expect("Audit A-2026-12 geplant", planned.ok && newAudit?.number === "A-2026-12" && newAudit.status === "planned", planned);
+expect("Scope: nur Kapitel der gewählten Norm", !!newAudit && newAudit.requirementIds.length > 0 && newAudit.requirementIds.every((id) => id.startsWith("req-50001")));
+expect("Auditee: Prozessverantwortliche", newAudit?.auditeeIds.join() === "p-hoffmann");
+expect("Planung geloggt", data.events.at(-1)?.summary === "Audit A-2026-12 geplant, Risikoeinstufung mittel");
+expect("Vorbereitung starten", step(audit.transitionAudit(data, keller, planned.createdId!, "in_preparation")).ok);
+expect("Checkliste aus Katalog erzeugen", step(audit.createChecklist(data, keller, planned.createdId!, "cat-enm-v1")).ok);
+expect("Audit starten", step(audit.transitionAudit(data, keller, planned.createdId!, "in_progress")).ok);
+
 console.log("Schritt 11: Verlauf");
 const chain = verifyChain(data.events);
 expect("Kette gültig", chain.valid, chain);

@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/shared/page-header";
 import { Panel } from "@/components/shared/panel";
 import { NativeSelect } from "@/components/shared/native-select";
 import { PlanRow, PLAN_COLUMNS } from "@/components/programmes/plan-row";
+import { AuditCreateButton } from "@/components/programmes/audit-create-sheet";
 import { useAppStore } from "@/store/app-store";
 import { dashboardStats, personName, programmeAudits } from "@/store/selectors";
 import { auditStatusLabels } from "@/domain/labels";
@@ -91,6 +92,7 @@ export function AnnualPlan() {
             (s) => ({ value: s, label: auditStatusLabels[s].label }),
           )}
         />
+        <AuditCreateButton />
         <p className="tnum text-xs text-muted-foreground" aria-live="polite">
           {filtered.length} von {all.length} Audits
         </p>

@@ -1,18 +1,91 @@
-import type { Audit, AuditStatus, Finding, ID, SeedData } from "@/types/domain";
+import type { Audit, AuditStatus, AuditType, Finding, ID, ISODate, RiskLevel, SeedData } from "@/types/domain";
 import {
   checkAuditTransition,
   checkCreateChecklist,
+  checkNewAudit,
   findImpartialityConflicts,
   findQualificationGaps,
   requiresCapa,
 } from "@/domain/rules";
-import { auditStatusLabels } from "@/domain/labels";
-import { createChecklistSnapshot } from "@/domain/factories";
+import { auditStatusLabels, riskLevelLabels } from "@/domain/labels";
+import { createChecklistSnapshot, newId, nextNumber } from "@/domain/factories";
 import { DEMO_TODAY, demoNow, requiresReason } from "@/domain/workflows";
 import type { Session } from "@/domain/permissions";
 import { emit, fail, personName, reasonMissing, replaceById, succeed, type CommandOutput } from "@/store/helpers";
 
 const findAudit = (data: SeedData, id: ID): Audit | undefined => data.audits.find((a) => a.id === id);
+
+export interface AuditDraft {
+  type: AuditType;
+  title: string;
+  /** null bei Lieferantenaudits */
+  siteId: ID | null;
+  supplierName?: string;
+  certificationBody?: string;
+  standardIds: ID[];
+  processIds: ID[];
+  plannedStart: ISODate;
+  plannedEnd: ISODate;
+  leadAuditorId: ID;
+  objectives: string;
+  scopeDescription: string;
+  riskLevel: RiskLevel;
+  /** Eine Begründung je Eintrag */
+  riskReasons: string[];
+}
+
+/**
+ * Plant ein neues Audit im Auditprogramm (Status Geplant). Abgeleitet werden:
+ * Anforderungen im Scope (alle Kapitel der gewählten Normen, Invariante 8) und
+ * Auditees (Verantwortliche der gewählten Prozesse, nicht bei Lieferantenaudits).
+ */
+export function createAudit(data: SeedData, session: Session, draft: AuditDraft): CommandOutput {
+  const programme = data.programmes[0];
+  if (!programme) return fail(data, ["Es ist kein Auditprogramm angelegt."]);
+  const supplier = draft.type === "supplier";
+  const processIds = [...new Set(draft.processIds)];
+  const auditeeIds = supplier
+    ? []
+    : [...new Set(processIds.map((id) => data.processes.find((p) => p.id === id)?.ownerId).filter((id): id is ID => Boolean(id)))];
+
+  const year = Number(draft.plannedStart.slice(0, 4)) || programme.year;
+  const number = nextNumber("A", year, data.audits.map((a) => a.number));
+  const audit: Audit = {
+    id: newId("aud"),
+    number,
+    programmeId: programme.id,
+    title: draft.title.trim(),
+    type: draft.type,
+    status: "planned",
+    siteId: supplier ? null : draft.siteId,
+    supplierName: supplier ? draft.supplierName?.trim() : undefined,
+    certificationBody: draft.certificationBody?.trim() || undefined,
+    objectives: draft.objectives.trim(),
+    scopeDescription: draft.scopeDescription.trim(),
+    standardIds: draft.standardIds,
+    requirementIds: data.requirements.filter((r) => draft.standardIds.includes(r.standardId)).map((r) => r.id),
+    processIds,
+    leadAuditorId: draft.leadAuditorId,
+    auditorIds: draft.leadAuditorId ? [draft.leadAuditorId] : [],
+    auditeeIds,
+    plannedStart: draft.plannedStart,
+    plannedEnd: draft.plannedEnd,
+    planningRationale: { riskLevel: draft.riskLevel, reasons: draft.riskReasons.map((r) => r.trim()).filter(Boolean) },
+    warningOverrides: [],
+  };
+
+  const guard = checkNewAudit(audit, { ...data, programmeYear: programme.year });
+  if (!guard.ok) return fail(data, guard.blockers);
+
+  const next = emit({ ...data, audits: [...data.audits, audit] }, session, {
+    entityType: "audit",
+    entityId: audit.id,
+    auditId: audit.id,
+    action: "created",
+    summary: `Audit ${number} geplant, Risikoeinstufung ${riskLevelLabels[draft.riskLevel].label.toLowerCase()}`,
+  });
+  return succeed(next, guard.warnings, audit.id);
+}
 
 export function transitionAudit(
   data: SeedData,
